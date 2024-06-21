@@ -201,9 +201,15 @@ impl CapsuleManagerImpl {
                 .storage_engine
                 .get_data_policy_by_id(&resource_uri.data_uuid, scope)
                 .await?;
-            let policy_inner: policy::Policy = from(&policy)?;
+            let mut policy_inner: policy::Policy = from(&policy)?;
             self.policy_enforcer
-                .enforce(&single_request, &policy_inner)?;
+                .enforce(&single_request, &mut policy_inner)?;
+            
+            let policy_update: proto::Policy = from(&policy_inner)?;
+            self.storage_engine
+            .store_data_policy(&data_key_party, scope, &policy_update)
+            .await?;
+            
         }
 
         // 3. query data key

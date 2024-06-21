@@ -38,10 +38,10 @@ impl PolicyEnforcer {
     pub fn enforce(
         &self,
         request: &request::SingleResourceRequest,
-        policy: &policy::Policy,
+        policy: &mut policy::Policy,
     ) -> Result<(), Error> {
-        for rule in policy.rules_iter() {
-            match self.match_rule(request, rule) {
+        for mut rule in policy.iter_mut(){
+            match self.match_rule(request, &mut rule) {
                 Ok(_) => return Ok(()),
                 Err(e) => {
                     warn!("rule {} match failed: {:?}.", rule.get_role_id(), e);
@@ -59,7 +59,7 @@ impl PolicyEnforcer {
     fn match_rule(
         &self,
         request: &request::SingleResourceRequest,
-        rule: &Rule,
+        rule: &mut Rule,
     ) -> Result<(), Error> {
         // initiator party should be in the list of grantee_party_id
         if !rule.has_grantee_party(&request.global_attributes.initiator_party_id) {
@@ -156,7 +156,7 @@ impl PolicyEnforcer {
                         i, e
                     )
                 })?;
-
+            
             if !result {
                 return Err(errno!(
                     ErrorCode::PermissionDenied,
@@ -166,6 +166,23 @@ impl PolicyEnforcer {
             }
         }
 
+        //check limit times
+        
+        if rule.has_limit_times() {
+            let rule_limit_times = rule.get_limit_times();
+            if rule_limit_times == 0 {
+                return Err(errno!(
+                    ErrorCode::PermissionDenied,
+                    "limit times in this rule {}.",
+                    rule.get_role_id()
+                ));
+            }
+            if rule_limit_times > 0 {
+                rule.decrease_limit_times();
+            }
+        }
+        
+        //rule.decrease_limit_times();
         return Ok(());
     }
 }
@@ -231,6 +248,7 @@ mod tests {
                                 "constraints": ["r.env.tee.sgx.mr_enclave==\"mr_enclave\" && r.env.tee.platform==\"sgx\""]
                             }
                         ],
+                        "limit_times":1
                         "columns":[
                             "fields1"
                         ]
@@ -239,7 +257,7 @@ mod tests {
             }
 
         "#;
-        let policy: Policy = serde_json::from_str(policy_str).unwrap();
-        enforcer.enforce(&request, &policy).unwrap();
+        let mut policy: Policy = serde_json::from_str(policy_str).unwrap();
+        enforcer.enforce(&request, &mut policy).unwrap();
     }
 }

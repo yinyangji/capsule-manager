@@ -116,7 +116,7 @@ impl Config {
             server_cert_path: Some(String::from("/host/resources/cert/server.crt")),
             server_cert_key_path: Some(String::from("/host/resources/cert/server.key")),
             client_ca_cert_path: Some(String::from("/host/resources/client_ca/")),
-            enable_tls: Some(true),
+            enable_tls: Some(false),
             mode: Some(String::from("production")),
         });
 

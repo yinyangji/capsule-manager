@@ -39,6 +39,9 @@ pub struct Rule {
     columns: Vec<String>,
 
     #[serde(default)]
+    limit_times: i32,
+
+    #[serde(default)]
     op_constraints: Vec<OpConstraint>,
 
     #[serde(default)]
@@ -61,6 +64,10 @@ impl Rule {
 
     pub fn has_grantee_party(&self, party_id: &String) -> bool {
         self.grantee_party_ids.contains(party_id)
+    }
+
+    pub fn has_limit_times(&self) -> bool{
+        self.limit_times != -1
     }
 
     pub fn enable_any_op(&self) -> bool {
@@ -96,6 +103,16 @@ impl Rule {
         &self.rule_id
     }
 
+    pub fn get_limit_times(&self) -> i32 {
+        self.limit_times
+    }
+
+    pub fn decrease_limit_times(&mut self){
+        if self.limit_times > 0 {
+            self.limit_times -= 1;
+        }
+        
+    }
     pub fn merge(&self, other: &Self) -> Self {
         // intersection
         let grantee_party_ids = self
@@ -128,6 +145,7 @@ impl Rule {
             // TODO: random rule id
             rule_id: String::from(""),
             grantee_party_ids,
+            limit_times: self.limit_times,
             columns: vec![String::from("*")],
             op_constraints,
             global_constraints: hash_set.into_iter().collect(),
@@ -151,6 +169,11 @@ impl Policy {
     pub fn rules_iter(&self) -> std::slice::Iter<Rule> {
         self.rules.iter()
     }
+
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<Rule>{
+        self.rules.iter_mut()
+    }
+    
 
     pub fn rules_len(&self) -> usize {
         self.rules.len()

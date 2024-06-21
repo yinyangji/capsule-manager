@@ -42,8 +42,11 @@ hex = "0.4.3"
 base32 = "0.4.0"
 lazy_static = "1.4.0"
 uuid = { version = "1.4.1", feaures = ["v4", "fast-rng", "macro-diagnostics"] }
-sdc_apis = "0.2.1-dev20240222"
 trustedflow-attestation-rs = { version = "0.1.2-dev240313"}
+sdc_apis = { version = "0.2.1-dev20240222" }
+
+[replace]
+"sdc_apis:0.2.1-dev20240222" = {path = "/home/admin/secure-data-capsule-apis"}
 
 
 [dev-dependencies]

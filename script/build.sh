@@ -59,7 +59,7 @@ case "$PLATFORM" in
     bash build_occlum.sh
     ;;
   sim)
-    /root/.cargo/bin/cargo build -p capsule_manager --release
+    /root/.cargo/bin/cargo build -p capsule_manager 
     ;;
   tdx|csv)
     /root/.cargo/bin/cargo build -p capsule_manager --release --features production

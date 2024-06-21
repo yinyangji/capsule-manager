@@ -51,6 +51,7 @@ else
         $DOCKER_DEVICE_FLAGS \
         -v $DIR:/home/admin/dev \
         -v /root/${USER}-${PROJECT}-bazel-cache-test:/root/.cache/bazel \
+        -v /home/${USER}/projects/secure-data-capsule-apis:/home/admin/secure-data-capsule-apis \
         -w /home/admin/dev \
         --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
         --cap-add=NET_ADMIN \
