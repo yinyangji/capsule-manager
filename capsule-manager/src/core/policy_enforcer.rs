@@ -45,10 +45,15 @@ impl PolicyEnforcer {
                 Ok(_) => return Ok(()),
                 Err(e) => {
                     warn!("rule {} match failed: {:?}.", rule.get_role_id(), e);
+                    let err_msg = format!("request is not satisfied with the policy {}. detail:{}.", policy.get_data_uuid(), e.to_string());
+                    return  Err(errno!(
+                        ErrorCode::PermissionDenied,
+                        "{}",
+                        err_msg
+                    ));
                 }
             }
         }
-
         Err(errno!(
             ErrorCode::PermissionDenied,
             "request is not satisfied with the policy {}.",
@@ -173,7 +178,7 @@ impl PolicyEnforcer {
             if rule_limit_times == 0 {
                 return Err(errno!(
                     ErrorCode::PermissionDenied,
-                    "limit times in this rule {}.",
+                    "the times reached the upper limit in this rule: {}.",
                     rule.get_role_id()
                 ));
             }
